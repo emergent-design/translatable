@@ -11,7 +11,7 @@ abstract class Resources
 	}
 
 	// Future<List<Language>> Languages();
-	Future Initialise() async
+	Future Initialise({ void onError(String) }) async
 	{
 		// Retrieve values for current language and check if any expected values
 		// are missing or unexpected values found
@@ -19,9 +19,9 @@ abstract class Resources
 		{
 			await LoadModule(m, null);
 
-			if (m.missing || m.orphaned)
+			if ((m.missing || m.orphaned) && onError != null)
 			{
-				this.MissingOrphanedError(m.name);
+				onError(m.name);
 			}
 		}
 	}
@@ -31,9 +31,6 @@ abstract class Resources
 	// the values for the appropriate language based on the browser request header. If
 	// language is a known code then return that language.
 	Future<Map<String, String>> GetModuleEntries(String module, String language);
-
-	// Override this if you wish to handle the error
-	void MissingOrphanedError(String module) {}
 
 
 	// Update a module with translations for a specific language or based on the browser

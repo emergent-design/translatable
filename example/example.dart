@@ -10,6 +10,9 @@ abstract class Example
 	@Translate('OK')
 	String get Ok;
 
+	@Translate('Multiple string name')
+	String get MultipleName;
+
 	// @Translate('Bad')
 	// int get Bad;
 
@@ -19,7 +22,7 @@ abstract class Example
 	// @Translate('NonAbstract')
 	// String get NonAbstract => "Hi";
 
-	@Translate('Replace {0}, {1}')
+	@Translate('Replace "{0}", {1}')
 	String Replace(String first, String second);
 
 	// @Translate('Bad replace {0}')
@@ -41,12 +44,9 @@ class ExampleResources extends Resources
 {
 	@override Future<Map<String, String>> GetModuleEntries(String module, String language) async
 	{
-		return {};
-	}
-
-	@override void MissingOrphanedError(String module)
-	{
-		print('Missing or orphaned resources for module "$module"');
+		return {
+			"replace": 'Replace "{1}", {0}'
+		};
 	}
 }
 
@@ -55,8 +55,11 @@ void main(List<String> args) async
 	var resources	= ExampleResources();
 	var example		= Example(resources);
 
-	await resources.Initialise();
+	await resources.Initialise(onError:
+		(m) => print('Missing or orphaned resources for module "$m"')
+	);
 
 	print(example.Replace("a", "b"));
 	print(example.Ok);
 }
+
