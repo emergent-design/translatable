@@ -1,0 +1,17 @@
+name: translatable
+version: 1.0.0
+author: Dan Parnham <dan@emergent-design.co.uk>
+# homepage:
+description: >-
+  Generate translatable getters/functions that are mapped to allow
+  remote storage and modification of translations.
+
+environment:
+  sdk: '>=2.0.0 <3.0.0'
+
+dependencies:
+  analyzer: ^0.38.1
+  source_gen: 0.9.4+4
+
+dev_dependencies:
+  build_runner: ^1.2.3

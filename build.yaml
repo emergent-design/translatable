@@ -1,0 +1,16 @@
+targets:
+  $default:
+    builders:
+      translatable:
+        generate_for:
+          include:
+          - example/**
+
+builders:
+  translatable:
+    import: 'package:translatable/builder.dart'
+    builder_factories: [ "translatableBuilder" ]
+    build_extensions: { ".dart": [ ".translatable.g.part" ]}
+    auto_apply: dependents
+    build_to: cache
+    applies_builders: [ "source_gen|combining_builder" ]
