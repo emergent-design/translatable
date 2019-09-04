@@ -19,3 +19,10 @@ class Translate
 
 	const Translate(this.source);
 }
+
+class Lookup
+{
+	final Map<String, String> table;
+
+	const Lookup(this.table);
+}

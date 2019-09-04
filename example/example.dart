@@ -38,6 +38,17 @@ abstract class Example
 	// String NoParameters();
 
 	// String get NotTranslated => "hi";
+
+	@Lookup(const {
+		'a': 'A',
+		'b': 'B'
+	})
+	String Letters(String key);
+
+	// @Lookup(const {
+	// 	'ok': 'Okay'
+	// })
+	// String AlreadyExists(String key);
 }
 
 class ExampleResources extends Resources
@@ -45,7 +56,8 @@ class ExampleResources extends Resources
 	@override Future<Map<String, String>> GetModuleEntries(String module, String language) async
 	{
 		return {
-			"replace": 'Replace "{1}", {0}'
+			"replace": 'Replace "{1}", {0}',
+			"a": "I am A"
 		};
 	}
 }
@@ -61,5 +73,6 @@ void main(List<String> args) async
 
 	print(example.Replace("a", "b"));
 	print(example.Ok);
+	print(example.Letters('a'));
 }
 

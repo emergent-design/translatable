@@ -32,7 +32,7 @@ void ReturnsString(DartType type, Element e)
 }
 
 
-void HasStringParameters(MethodElement e)
+void HasStringParameters(MethodElement e, [ int expected = 0 ])
 {
 	// if (e.parameters.any((p) => !p.type.isDartCoreString))
 	if (e.parameters.any((p) => !_IsString(p.type)))
@@ -48,6 +48,27 @@ void HasStringParameters(MethodElement e)
 		throw InvalidGenerationSourceError(
 			'A method annotated with Translate must have at least one parameter, consider using a getter instead.',
 			todo: 'Remove the Translate annotation or convert to a getter',
+			element: e
+		);
+	}
+	if (expected > 0 && e.parameters.length != expected)
+	{
+		throw InvalidGenerationSourceError(
+			'A method annotated with Lookup must have a single parameter',
+			todo: 'Modify the method to have a single String parameter',
+			element: e
+		);
+	}
+}
+
+
+void DoesNotContainKey(ExecutableElement e, Map<String, String> values, String key)
+{
+	if (values.containsKey(key))
+	{
+		throw InvalidGenerationSourceError(
+			'A translation key "$key" already exists in the module, duplicates are not permitted',
+			todo: 'Remove the duplicate entry',
 			element: e
 		);
 	}
