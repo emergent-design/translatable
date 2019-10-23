@@ -3,7 +3,11 @@ import 'package:translatable/src/module.dart';
 
 abstract class Resources
 {
+	final _initialised				= StreamController<void>.broadcast();
+	Stream<void> get initialised	=> _initialised.stream;
+
 	List<TranslatableModule> _modules = [];
+
 
 	void Register(TranslatableModule module)
 	{
@@ -24,6 +28,8 @@ abstract class Resources
 				onError(m.name);
 			}
 		}
+
+		this._initialised.add(null);
 	}
 
 	// Implement this to retrieve a map of strings for a given module based on how data

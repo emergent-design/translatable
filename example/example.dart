@@ -67,12 +67,14 @@ void main(List<String> args) async
 	var resources	= ExampleResources();
 	var example		= Example(resources);
 
+	resources.initialised.listen((_) {
+		print(example.Replace("a", "b"));
+		print(example.Ok);
+		print(example.Letters('a'));
+	});
+
 	await resources.Initialise(onError:
 		(m) => print('Missing or orphaned resources for module "$m"')
 	);
-
-	print(example.Replace("a", "b"));
-	print(example.Ok);
-	print(example.Letters('a'));
 }
 
