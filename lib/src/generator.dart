@@ -44,6 +44,7 @@ class TranslatableGenerator extends GeneratorForAnnotation<Translatable>
 		final classElement	= element as ClassElement;
 		final className		= '_\$${classElement.name}';
 		final name			= annotation.read('module').stringValue;
+		final withMixin		= annotation.read('withMixin').boolValue ? "with ${classElement.name}" : "";
 		final fields		= classElement.fields.where((f) => _translateChecker.hasAnnotationOfExact(f.getter) || _translateChecker.hasAnnotationOfExact(f));
 		final methods		= classElement.methods.where((m) => _translateChecker.hasAnnotationOfExact(m));
 		final lookups		= classElement.methods.where((m) => _lookupChecker.hasAnnotationOfExact(m));
@@ -118,7 +119,7 @@ class TranslatableGenerator extends GeneratorForAnnotation<Translatable>
 
 
 		yield '''
-			class $className extends TranslatableModule implements ${classElement.name}
+			class $className extends TranslatableModule $withMixin implements ${classElement.name}
 			{
 				$className(Resources resources) : super(resources, "$name", {
 					${values.keys.map((k) => '"${k}": "${values[k]}"').join(',\n')}

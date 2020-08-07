@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:translatable/translatable.dart';
 part 'example.g.dart';
 
-@Translatable("example")
+@Translatable("example", withMixin: true)
 abstract class Example
 {
 	factory Example(Resources resources) => _$Example(resources);
@@ -49,7 +49,11 @@ abstract class Example
 	// 	'ok': 'Okay'
 	// })
 	// String AlreadyExists(String key);
+
+	// Non-abstract function
+	String Test() => Letters('b');
 }
+
 
 class ExampleResources extends Resources
 {
@@ -71,6 +75,7 @@ void main(List<String> args) async
 		print(example.Replace("a", "b"));
 		print(example.Ok);
 		print(example.Letters('a'));
+		print(example.Test());
 	});
 
 	await resources.Initialise(onError:

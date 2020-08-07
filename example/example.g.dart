@@ -6,7 +6,7 @@ part of 'example.dart';
 // TranslatableGenerator
 // **************************************************************************
 
-class _$Example extends TranslatableModule implements Example {
+class _$Example extends TranslatableModule with Example implements Example {
   _$Example(Resources resources)
       : super(resources, "example", {
           "ok": "OK",

@@ -10,7 +10,11 @@ class Translatable
 	final String module;
 	final KeyFormat format;
 
-	const Translatable(this.module, { this.format = KeyFormat.Kebab });
+	// If true then the translatable class is used as a mixin as well as an interface which means 
+	// that any non-abstract members will be included
+	final bool withMixin;		
+
+	const Translatable(this.module, { this.format = KeyFormat.Kebab, this.withMixin = false });
 }
 
 class Translate
