@@ -11,8 +11,16 @@ final _translateChecker		= const TypeChecker.fromRuntime(Translate);
 final _lookupChecker		= const TypeChecker.fromRuntime(Lookup);
 final _upperCase			= RegExp('[A-Z]');
 
-String _key(KeyFormat format, String name)
+
+String _key(KeyFormat format, String name, String override)
 {
+	if (override.isNotEmpty)
+	{
+		// This field/method has an explicitly declared key
+		// so use that instead of generating one.
+		return override;
+	}
+
 	switch (format)
 	{
 		case KeyFormat.None:	return name;
@@ -23,6 +31,17 @@ String _key(KeyFormat format, String name)
 	}
 
 	return name;
+}
+
+// Retrieve the key from the annotation. If the
+// key is empty then the default key naming method
+// will be used instead.
+String _keyOverride(Element e)
+{
+	return _translateChecker
+		.firstAnnotationOfExact(e)
+		.getField('key')
+		.toStringValue();
 }
 
 
@@ -52,13 +71,12 @@ class TranslatableGenerator extends GeneratorForAnnotation<Translatable>
 			(v) => annotation.read('format').objectValue.getField(v.toString().split('.')[1]) != null
 		);
 
-		var buffer			= StringBuffer();
-		// List<String> values = [];
-		Map<String, String> values = {};
+		var buffer					= StringBuffer();
+		Map<String, String> values	= {};
 
 		for (var f in fields)
 		{
-			final key = _key(format, f.name);
+			final key = _key(format, f.name, _keyOverride(f.getter));
 
 			IsAbstract(f.getter);
 			ReturnsString(f.type, f);
@@ -70,13 +88,12 @@ class TranslatableGenerator extends GeneratorForAnnotation<Translatable>
 				.toStringValue()
 				.replaceAll('"', '\\"');
 
-			// values.add('"${key}": "$value"');
 			buffer.write('String get ${f.name} => values["${key}"];\n');
 		}
 
 		for (var m in methods)
 		{
-			final key = _key(format, m.name);
+			final key = _key(format, m.name, _keyOverride(m));
 
 			IsAbstract(m);
 			ReturnsString(m.returnType, m);
@@ -91,7 +108,6 @@ class TranslatableGenerator extends GeneratorForAnnotation<Translatable>
 				.toStringValue()
 				.replaceAll('"', '\\"');
 
-			// values.add('"${key}": "$value"');
 			buffer.write('String ${m.name}($parameters) => TranslatableModule.Substitute(values["${key}"], [ $list ]);\n');
 		}
 
@@ -112,7 +128,6 @@ class TranslatableGenerator extends GeneratorForAnnotation<Translatable>
 
 			table.forEach((k, v) => DoesNotContainKey(l, values, k));
 			values.addAll(table);
-			// values.addAll(table.keys.map((k) => '"${k}": "${table[k]}"'));
 			buffer.write('String ${l.name}(String key) => values[key];\n');
 		}
 

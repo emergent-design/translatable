@@ -20,8 +20,9 @@ class Translatable
 class Translate
 {
 	final String source;
+	final String key;
 
-	const Translate(this.source);
+	const Translate(this.source, { this.key = '' });
 }
 
 class Lookup

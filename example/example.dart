@@ -45,6 +45,9 @@ abstract class Example
 	})
 	String Letters(String key);
 
+	@Translate('Override key', key: 'myKey')
+	String get OverrideKey;
+
 	// @Lookup(const {
 	// 	'ok': 'Okay'
 	// })
