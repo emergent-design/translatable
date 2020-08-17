@@ -1,5 +1,5 @@
 name: translatable
-version: 1.0.1
+version: 1.1.0
 author: Dan Parnham <dan@emergent-design.co.uk>
 homepage: https://github.com/emergent-design/translatable
 description: >-
@@ -11,7 +11,6 @@ environment:
 
 dependencies:
   build: ^1.2.1
-  # analyzer: ^0.39.1
   source_gen: ^0.9.4+6
 
 dev_dependencies:
