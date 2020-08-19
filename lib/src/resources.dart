@@ -14,14 +14,21 @@ abstract class Resources
 		this._modules.add(module);
 	}
 
-	// Future<List<Language>> Languages();
+
 	Future Initialise({ void onError(String) }) async
 	{
+		List<Future<TranslatableModule>> loading = [];
+
 		// Retrieve values for current language and check if any expected values
 		// are missing or unexpected values found
 		for (var m in this._modules)
 		{
-			await LoadModule(m, null);
+			loading.add(LoadModule(m, null));
+		}
+
+		for (var l in loading)
+		{
+			var m = await l;
 
 			if ((m.missing || m.orphaned) && onError != null)
 			{
@@ -65,13 +72,19 @@ abstract class Resources
 	Future<List<TranslatableModule>> Load(String language) async
 	{
 		List<TranslatableModule> result = [];
+		List<Future<TranslatableModule>> loading = [];
 
 		for (var m in this._modules)
 		{
-			var module = await this.LoadModule(
+			loading.add(this.LoadModule(
 				TranslatableModule.base(m.name, Map.from(m.values)),
 				language
-			);
+			));
+		}
+
+		for (var l in loading)
+		{
+			var module = await l;
 
 			module.originals = Map.from(module.values);
 			result.add(module);
@@ -79,6 +92,5 @@ abstract class Resources
 
 		return result;
 	}
-
 
 }
