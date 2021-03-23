@@ -15,7 +15,7 @@ abstract class Resources
 	}
 
 
-	Future Initialise({ void onError(String) }) async
+	Future Initialise({ void onError(String)? }) async
 	{
 		List<Future<TranslatableModule>> loading = [];
 
@@ -43,25 +43,21 @@ abstract class Resources
 	// is stored in your server-side application. If language is `null` then return
 	// the values for the appropriate language based on the browser request header. If
 	// language is a known code then return that language.
-	Future<Map<String, String>> GetModuleEntries(String module, String language);
+	Future<Map<String, String>> GetModuleEntries(String module, String? language);
 
 
 	// Update a module with translations for a specific language or based on the browser
 	// request header if language is `null`.
-	Future<TranslatableModule> LoadModule(TranslatableModule module, String language) async
+	Future<TranslatableModule> LoadModule(TranslatableModule module, String? language) async
 	{
-		var entries = await GetModuleEntries(module.name, language);
+		var entries		= await GetModuleEntries(module.name, language);
+		module.orphaned = entries.keys.any((k) => !module.values.containsKey(k));
+		module.missing	= false;
 
-		if (entries != null)
+		for (var k in module.values.keys)
 		{
-			module.orphaned = entries.keys.any((k) => !module.values.containsKey(k));
-			module.missing	= false;
-
-			for (var k in module.values.keys)
-			{
-				if (entries.containsKey(k)) module.values[k]	= entries[k];
-				else						module.missing		= true;
-			}
+			if (entries.containsKey(k)) module.values[k]	= entries[k] ?? '';
+			else						module.missing		= true;
 		}
 
 		return module;

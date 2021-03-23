@@ -17,7 +17,7 @@ abstract class Example
 	// int get Bad;
 
 	// @Translate('Test')
-	// String test;
+	// String test = "";
 
 	// @Translate('NonAbstract')
 	// String get NonAbstract => "Hi";
@@ -60,7 +60,7 @@ abstract class Example
 
 class ExampleResources extends Resources
 {
-	@override Future<Map<String, String>> GetModuleEntries(String module, String language) async
+	@override Future<Map<String, String>> GetModuleEntries(String module, String? language) async
 	{
 		return {
 			"replace": 'Replace "{1}", {0}',

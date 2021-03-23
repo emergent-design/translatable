@@ -16,7 +16,7 @@ void IsAbstract(ExecutableElement e)
 }
 
 // Deprecate this when type.isDartCoreString becomes available (analyzer 0.36.x)
-bool _IsString(DartType type) => type.element != null && type.element.library.isDartCore && type.element.name == "String";
+bool _IsString(DartType type) => (type.element?.library?.isDartCore ?? false) && type.element?.name == "String";
 
 void ReturnsString(DartType type, Element e)
 {

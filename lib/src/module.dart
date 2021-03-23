@@ -23,6 +23,6 @@ class TranslatableModule
 
 	static String Substitute(String text, List<String> values)
 	{
-		return text.replaceAllMapped(_matcher, (m) => values[int.parse(m[1])]);
+		return text.replaceAllMapped(_matcher, (m) => values[int.parse(m[1] ?? '0')]);
 	}
 }

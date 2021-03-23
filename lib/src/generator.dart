@@ -24,13 +24,10 @@ String _key(KeyFormat format, String name, String override)
 	switch (format)
 	{
 		case KeyFormat.None:	return name;
-		case KeyFormat.Kebab:	return name.replaceAllMapped(_upperCase, (m) => m.start > 0
-			? '-${m.group(0).toLowerCase()}'
-			: m.group(0).toLowerCase()
+		case KeyFormat.Kebab:	return name.replaceAllMapped(_upperCase, (m) =>	
+			(m.start > 0 ? '-' : '') + (m[0]?.toLowerCase() ?? '?')
 		);
 	}
-
-	return name;
 }
 
 // Retrieve the key from the annotation. If the
@@ -40,8 +37,8 @@ String _keyOverride(Element e)
 {
 	return _translateChecker
 		.firstAnnotationOfExact(e)
-		.getField('key')
-		.toStringValue();
+		?.getField('key')
+		?.toStringValue() ?? '';
 }
 
 
@@ -60,13 +57,12 @@ class TranslatableGenerator extends GeneratorForAnnotation<Translatable>
 			);
 		}
 
-		final classElement	= element as ClassElement;
-		final className		= '_\$${classElement.name}';
+		final className		= '_\$${element.name}';
 		final name			= annotation.read('module').stringValue;
-		final withMixin		= annotation.read('withMixin').boolValue ? "with ${classElement.name}" : "";
-		final fields		= classElement.fields.where((f) => _translateChecker.hasAnnotationOfExact(f.getter) || _translateChecker.hasAnnotationOfExact(f));
-		final methods		= classElement.methods.where((m) => _translateChecker.hasAnnotationOfExact(m));
-		final lookups		= classElement.methods.where((m) => _lookupChecker.hasAnnotationOfExact(m));
+		final withMixin		= annotation.read('withMixin').boolValue ? "with ${element.name}" : "";
+		final fields		= element.fields.where((f) => _translateChecker.hasAnnotationOfExact(f.getter ?? f));// || _translateChecker.hasAnnotationOfExact(f));
+		final methods		= element.methods.where((m) => _translateChecker.hasAnnotationOfExact(m));
+		final lookups		= element.methods.where((m) => _lookupChecker.hasAnnotationOfExact(m));
 		final format		= KeyFormat.values.singleWhere(
 			(v) => annotation.read('format').objectValue.getField(v.toString().split('.')[1]) != null
 		);
@@ -76,19 +72,24 @@ class TranslatableGenerator extends GeneratorForAnnotation<Translatable>
 
 		for (var f in fields)
 		{
-			final key = _key(format, f.name, _keyOverride(f.getter));
+			final getter = f.getter;
 
-			IsAbstract(f.getter);
-			ReturnsString(f.type, f);
-			DoesNotContainKey(f.getter, values, key);
+			if (getter != null)
+			{
+				final key = _key(format, f.name, _keyOverride(getter));
 
-			values[key] = _translateChecker
-				.firstAnnotationOfExact(f.getter)
-				.getField('source')
-				.toStringValue()
-				.replaceAll('"', '\\"');
+				IsAbstract(getter);
+				ReturnsString(f.type, f);
+				DoesNotContainKey(getter, values, key);
 
-			buffer.write('String get ${f.name} => values["${key}"];\n');
+				values[key] = _translateChecker
+					.firstAnnotationOfExact(getter)
+					?.getField('source')
+					?.toStringValue()
+					?.replaceAll('"', '\\"') ?? '';
+
+				buffer.write('String get ${f.name} => values["${key}"] ?? "";\n');
+			}
 		}
 
 		for (var m in methods)
@@ -104,11 +105,11 @@ class TranslatableGenerator extends GeneratorForAnnotation<Translatable>
 			final list			= m.parameters.map((p) => p.name).join(', ');
 			values[key]			= _translateChecker
 				.firstAnnotationOfExact(m)
-				.getField('source')
-				.toStringValue()
-				.replaceAll('"', '\\"');
+				?.getField('source')
+				?.toStringValue()
+				?.replaceAll('"', '\\"') ?? '';
 
-			buffer.write('String ${m.name}($parameters) => TranslatableModule.Substitute(values["${key}"], [ $list ]);\n');
+			buffer.write('String ${m.name}($parameters) => TranslatableModule.Substitute(values["${key}"] ?? "", [ $list ]);\n');
 		}
 
 		for (var l in lookups)
@@ -119,22 +120,20 @@ class TranslatableGenerator extends GeneratorForAnnotation<Translatable>
 
 			final table	= _lookupChecker
 				.firstAnnotationOfExact(l)
-				.getField('table')
-				.toMapValue()
-				.map<String, String>((k, v) => MapEntry(
-					k.toStringValue(),
-					v.toStringValue().replaceAll('"', '\\"')
-				));
+				?.getField('table')
+				?.toMapValue()
+				?.map<String, String>((k, v) => MapEntry(
+					k?.toStringValue() ?? '',
+					v?.toStringValue()?.replaceAll('"', '\\"') ?? ''
+				)) ?? {};
 
 			table.forEach((k, v) => DoesNotContainKey(l, values, k));
 			values.addAll(table);
-			buffer.write('String ${l.name}(String key) => values[key];\n');
+			buffer.write('String ${l.name}(String key) => values[key] ?? "";\n');
 		}
 
-
-
 		yield '''
-			class $className extends TranslatableModule $withMixin implements ${classElement.name}
+			class $className extends TranslatableModule $withMixin implements ${element.name}
 			{
 				$className(Resources resources) : super(resources, "$name", {
 					${values.keys.map((k) => '"${k}": "${values[k]}"').join(',\n')}
